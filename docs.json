@@ -14,8 +14,8 @@
         "tab": "Docs",
         "groups": [
           {
-            "group": "Quickstart",
-            "pages": ["index", "quickstart", "development"]
+            "group": "Guides",
+            "pages": ["quickstart"]
           }
         ]
       }
