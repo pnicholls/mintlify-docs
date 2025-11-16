@@ -11,6 +11,10 @@ ZipKit supports:
 - **AWS S3** - Amazon's Simple Storage Service
 - **Cloudflare R2** - Cloudflare's S3-compatible object storage
 
+<Note>
+  **Why bucket credentials are required:** ZipKit streams ZIP archives directly to your bucket using multipart uploads. A presigned URL cannot be used since they don't support the multipart upload operations needed for efficient streaming.
+</Note>
+
 ## Configuring a Bucket
 
 Buckets are configured through the ZipKit dashboard, not via API. Here's how:
