@@ -15,6 +15,31 @@ ZipKit is a powerful API that fetches files from the URLs you provide, bundles t
 - 🔒 **Secure** - All requests use HTTPS and bearer token authentication
 - ⚡ **Fast & scalable** - Handles large files and multiple concurrent jobs
 
+## Common Use Cases
+
+**Document Processing**
+Bundle multiple documents (PDFs, Word files, spreadsheets) into a single downloadable archive for users.
+
+**Image Galleries**
+Create ZIP archives of photo collections for easy download.
+
+**Backup & Export**
+Generate ZIP exports of user data for compliance or data portability.
+
+**Report Distribution**
+Combine multiple report files into a single archive for distribution.
+
+**Asset Delivery**
+Package design assets, code files, or resources for delivery to clients.
+
+## How It Works
+
+1. **Configure** your cloud storage bucket (S3 or R2) in the ZipKit dashboard
+2. **Create** an access token for API authentication
+3. **Send** a POST request with URLs of files to bundle
+4. **Receive** a webhook when the ZIP is ready in your bucket
+5. **Download** or share the ZIP from your cloud storage
+
 ## Quick Start
 
 Get up and running in minutes:
@@ -54,42 +79,5 @@ Complete documentation for all API endpoints:
 <CardGroup cols={2}>
   <Card title="Create ZIP" icon="plus" href="/api-reference/create-zip">
     `POST /api/v1/zips` - Create a new ZIP archive
-  </Card>
-</CardGroup>
-
-## Common Use Cases
-
-**Document Processing**
-Bundle multiple documents (PDFs, Word files, spreadsheets) into a single downloadable archive for users.
-
-**Image Galleries**
-Create ZIP archives of photo collections for easy download.
-
-**Backup & Export**
-Generate ZIP exports of user data for compliance or data portability.
-
-**Report Distribution**
-Combine multiple report files into a single archive for distribution.
-
-**Asset Delivery**
-Package design assets, code files, or resources for delivery to clients.
-
-## How It Works
-
-1. **Configure** your cloud storage bucket (S3 or R2) in the ZipKit dashboard
-2. **Create** an access token for API authentication
-3. **Send** a POST request with URLs of files to bundle
-4. **Receive** a webhook when the ZIP is ready in your bucket
-5. **Download** or share the ZIP from your cloud storage
-
-## Need Help?
-
-<CardGroup cols={2}>
-  <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Get started with your first ZIP
-  </Card>
-
-  <Card title="API Reference" icon="book" href="/api-reference/create-zip">
-    Explore the complete API documentation
   </Card>
 </CardGroup>
