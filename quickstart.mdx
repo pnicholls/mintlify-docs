@@ -1,80 +1,139 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Create your first ZIP archive in minutes"
 ---
 
 ## Get started in three steps
 
-Get your documentation site running locally and make your first customization.
+This guide will walk you through creating your first ZIP archive using the ZipKit API. You'll go from signup to a working API call in just a few minutes.
 
-### Step 1: Set up your local environment
+### Step 1: Create your account and project
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+<Steps>
+  <Step title="Sign up for ZipKit">
+    Create an account at your ZipKit instance. Once logged in, you'll be taken to your dashboard.
+  </Step>
 
-### Step 2: Deploy your changes
+  <Step title="Create a project">
+    Projects help you organize your ZIP operations. From your dashboard:
+    1. Click "New Project"
+    2. Give your project a name (e.g., "My First Project")
+    3. Click "Create"
+  </Step>
+</Steps>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+### Step 2: Configure your storage bucket
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+ZipKit stores ZIP archives in your cloud storage. You'll need to configure either an AWS S3 or Cloudflare R2 bucket.
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+<Tabs>
+  <Tab title="AWS S3">
+    1. Go to the "Buckets" section in your project
+    2. Click "Add Bucket"
+    3. Select "AWS S3" as the provider
+    4. Enter your bucket configuration:
+       - **Bucket Name**: Your S3 bucket name
+       - **Access Key ID**: Your AWS access key
+       - **Secret Access Key**: Your AWS secret key
+       - **Region**: Your bucket's region (e.g., `us-east-1`)
+    5. Click "Save"
+  </Tab>
 
-### Step 3: Go live
+  <Tab title="Cloudflare R2">
+    1. Go to the "Buckets" section in your project
+    2. Click "Add Bucket"
+    3. Select "Cloudflare R2" as the provider
+    4. Enter your bucket configuration:
+       - **Bucket Name**: Your R2 bucket name
+       - **Access Key ID**: Your R2 access key ID
+       - **Secret Access Key**: Your R2 secret access key
+       - **Account ID**: Your Cloudflare account ID
+    5. Click "Save"
+  </Tab>
+</Tabs>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+<Note>
+  Make sure your bucket has proper write permissions for the credentials you provide.
+</Note>
+
+### Step 3: Create an access token and make your first API call
+
+<Steps>
+  <Step title="Generate an access token">
+    1. Go to the "Access Tokens" section
+    2. Click "Create Token"
+    3. Give it a name (e.g., "Development Token")
+    4. Click "Create"
+    5. **Copy the token immediately** - you won't be able to see it again!
+  </Step>
+
+  <Step title="Make your first API call">
+    Now you're ready to create your first ZIP! Replace the placeholders in this example:
+
+    ```bash
+    curl -X POST https://zipkit.io/api/v1/zips \
+      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "urls": [
+          "https://my-source-bucket.s3.amazonaws.com/file1.pdf",
+          "https://my-source-bucket.s3.amazonaws.com/image.jpg",
+          "https://my-source-bucket.s3.amazonaws.com/document.docx"
+        ],
+        "bucket_name": "my-destination-bucket",
+        "key": "my-archive.zip"
+      }'
+    ```
+
+    You'll receive a response like this:
+
+    ```json
+    {
+      "data": {
+        "id": "clx7g2m4p0000...",
+        "status": "none"
+      }
+    }
+    ```
+
+    The `status` will be `"none"` initially, then change to `"processing"` and finally `"succeeded"` when complete.
+  </Step>
+
+  <Step title="Set up webhooks (optional)">
+    To get notified when your ZIP is ready, configure a webhook URL in your project settings. ZipKit will send a notification when the ZIP completes.
+
+    See the [Webhooks guide](/guides/webhooks) to set this up.
+  </Step>
+</Steps>
+
+## What just happened?
+
+1. **ZipKit received your request** with a list of URLs to bundle
+2. **Downloaded each file** from the URLs you provided
+3. **Created a ZIP archive** containing all the files
+4. **Uploaded the ZIP** to your configured cloud storage bucket
+5. The ZIP is now available in your bucket with a filename like `zip_clx7g2m4p0000....zip`
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
+  <Card title="API Reference" icon="code" href="/api-reference/create-zip">
+    Explore all available API endpoints and parameters
+  </Card>
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Set up webhooks to get notified when ZIPs are ready
+  </Card>
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+  <Card title="Buckets" icon="bucket" href="/guides/buckets">
+    Configure S3 or R2 storage for your ZIPs
+  </Card>
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Authentication" icon="key" href="/guides/authentication">
+    Learn more about access tokens and authentication
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+<Tip>
+  **Pro tip**: Set up a webhook URL in your project settings to get instant notifications when your ZIP archives are ready.
+</Tip>

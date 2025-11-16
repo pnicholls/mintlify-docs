@@ -1,0 +1,346 @@
+---
+title: "Create ZIP"
+description: "Create a new ZIP archive from remote files"
+api: "POST /api/v1/zips"
+---
+
+## Overview
+
+The Create ZIP endpoint accepts a list of URLs pointing to remote files, downloads them, bundles them into a ZIP archive, and uploads the result to your configured cloud storage bucket.
+
+ZIP creation is **asynchronous** - the endpoint returns immediately with a job ID, and the actual processing happens in the background.
+
+## Endpoint
+
+```
+POST /api/v1/zips
+```
+
+## Authentication
+
+Requires a valid access token in the `Authorization` header:
+
+```
+Authorization: Bearer YOUR_ACCESS_TOKEN
+```
+
+See [Authentication](/api-reference/authentication) for details.
+
+## Request Body
+
+<ParamField body="urls" type="array" required>
+  An array of URLs pointing to files you want to include in the ZIP archive. Each URL must be publicly accessible or return the file when requested.
+
+  **Requirements:**
+  - At least 1 URL required
+  - Each URL must be a valid HTTP or HTTPS URL
+  - Files will be downloaded and included in the ZIP in the order provided
+  - Filenames in the ZIP will be extracted from the URL path (e.g., `https://example.com/documents/report.pdf` becomes `report.pdf`)
+</ParamField>
+
+<ParamField body="bucket_name" type="string" required>
+  The name of the S3 or R2 bucket where the ZIP archive will be stored. This must match a bucket you've configured in your project settings.
+</ParamField>
+
+<ParamField body="key" type="string" optional>
+  The filename for the ZIP archive in your bucket. If not provided, ZipKit will generate a filename based on the ZIP's UUID (e.g., `zip_{uuid}.zip`).
+
+  **Example:** `"reports/monthly-report-2025-11.zip"`
+</ParamField>
+
+<ParamField body="service" type="string" optional>
+  The cloud storage service to use. Defaults to `"s3"` if not specified.
+
+  **Options:**
+  - `"s3"` - AWS S3 (default)
+  - `"r2"` - Cloudflare R2
+</ParamField>
+
+## Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://zipkit.io/api/v1/zips \
+  -H "Authorization: Bearer your-access-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "urls": [
+      "https://my-bucket.s3.amazonaws.com/documents/report.pdf",
+      "https://my-bucket.s3.amazonaws.com/images/photo.jpg",
+      "https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx"
+    ],
+    "bucket_name": "my-destination-bucket",
+    "key": "reports/monthly-2025-11.zip",
+    "service": "s3"
+  }'
+```
+
+```python Python
+import requests
+
+url = "https://zipkit.io/api/v1/zips"
+headers = {
+    "Authorization": "Bearer your-access-token",
+    "Content-Type": "application/json"
+}
+data = {
+    "urls": [
+        "https://my-bucket.s3.amazonaws.com/documents/report.pdf",
+        "https://my-bucket.s3.amazonaws.com/images/photo.jpg",
+        "https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx"
+    ],
+    "bucket_name": "my-destination-bucket",
+    "key": "reports/monthly-2025-11.zip",
+    "service": "s3"
+}
+
+response = requests.post(url, json=data, headers=headers)
+zip_data = response.json()
+print(f"ZIP ID: {zip_data['data']['id']}")
+print(f"Status: {zip_data['data']['status']}")
+```
+
+```javascript JavaScript
+const response = await fetch('https://zipkit.io/api/v1/zips', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer your-access-token',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    urls: [
+      'https://my-bucket.s3.amazonaws.com/documents/report.pdf',
+      'https://my-bucket.s3.amazonaws.com/images/photo.jpg',
+      'https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx'
+    ],
+    bucket_name: 'my-destination-bucket',
+    key: 'reports/monthly-2025-11.zip',
+    service: 's3'
+  })
+});
+
+const zipData = await response.json();
+console.log(`ZIP ID: ${zipData.data.id}`);
+console.log(`Status: ${zipData.data.status}`);
+```
+
+```ruby Ruby
+require 'net/http'
+require 'json'
+
+uri = URI('https://zipkit.io/api/v1/zips')
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(uri.path, {
+  'Authorization' => 'Bearer your-access-token',
+  'Content-Type' => 'application/json'
+})
+
+request.body = {
+  urls: [
+    'https://my-bucket.s3.amazonaws.com/documents/report.pdf',
+    'https://my-bucket.s3.amazonaws.com/images/photo.jpg',
+    'https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx'
+  ],
+  bucket_name: 'my-destination-bucket',
+  key: 'reports/monthly-2025-11.zip',
+  service: 's3'
+}.to_json
+
+response = http.request(request)
+zip_data = JSON.parse(response.body)
+puts "ZIP ID: #{zip_data['data']['id']}"
+puts "Status: #{zip_data['data']['status']}"
+```
+
+</CodeGroup>
+
+## Response
+
+### Success Response (201 Created)
+
+```json
+{
+  "data": {
+    "id": "clx7g2m4p0000xyz123abc",
+    "status": "none"
+  }
+}
+```
+
+<ResponseField name="data" type="object">
+  The response data object containing ZIP information.
+</ResponseField>
+
+<ResponseField name="data.id" type="string">
+  Unique identifier (UUID) for this ZIP job. Use this to check status later via the [Get ZIP](/api-reference/get-zip) endpoint.
+</ResponseField>
+
+<ResponseField name="data.status" type="string">
+  Current status of the ZIP job. Will be `"none"` when first created.
+
+  **Possible values:**
+  - `none` - Job created, not yet started processing
+  - `processing` - Currently downloading files and creating ZIP
+  - `succeeded` - ZIP successfully created and uploaded to your bucket
+  - `failed` - Job failed during processing
+</ResponseField>
+
+## ZIP Creation Process
+
+After you create a ZIP job, ZipKit performs these steps asynchronously:
+
+1. **Validates** the bucket ID and URLs
+2. **Downloads** each file from the provided URLs
+3. **Creates** a ZIP archive containing all downloaded files
+4. **Uploads** the ZIP to your configured cloud storage bucket
+5. **Sends** a webhook notification (if configured)
+
+The entire process typically takes a few seconds to a few minutes, depending on:
+- Number of files
+- Size of files
+- Network speed when downloading from source URLs
+- Upload speed to your cloud storage
+
+## Checking Status
+
+The Create ZIP endpoint returns immediately - it doesn't wait for the ZIP to be created. To check the status:
+
+1. **Poll the status endpoint**: Use the [Get ZIP Status](/api-reference/get-zip) endpoint with the returned `id`
+2. **Use webhooks (recommended)**: Configure a webhook to receive automatic notifications when the ZIP completes
+
+## Error Responses
+
+### 400 Bad Request
+
+Returned when the request is invalid.
+
+```json
+{
+  "error": "bad_request",
+  "message": "urls is required and must be an array",
+  "details": {
+    "urls": ["can't be blank"]
+  }
+}
+```
+
+**Common causes:**
+- Missing required fields (`bucket_id` or `urls`)
+- `urls` is not an array
+- `urls` array is empty
+- Invalid URL format
+
+### 401 Unauthorized
+
+Returned when authentication fails.
+
+```json
+{
+  "error": "unauthorized",
+  "message": "Invalid or missing access token"
+}
+```
+
+**Solution**: Check that you're including a valid `Authorization` header.
+
+### 404 Not Found
+
+Returned when the specified bucket doesn't exist or doesn't belong to your project.
+
+```json
+{
+  "error": "not_found",
+  "message": "Bucket not found"
+}
+```
+
+**Solution**: Verify the `bucket_name` matches a bucket you've configured in your project.
+
+### 422 Unprocessable Entity
+
+Returned when the request is well-formed but contains invalid data.
+
+```json
+{
+  "error": "unprocessable_entity",
+  "message": "Invalid webhook URL format"
+}
+```
+
+**Common causes:**
+- Invalid webhook URL format
+- URLs that aren't accessible
+- Invalid bucket configuration
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Validate URLs before sending" icon="check">
+    Make sure all URLs are accessible and return the expected files. ZipKit will attempt to download from each URL - if a URL is inaccessible, the ZIP job may fail.
+  </Accordion>
+
+  <Accordion title="Use descriptive keys" icon="file">
+    Specify a meaningful `key` parameter to organize your ZIPs in your bucket (e.g., `"reports/monthly-2025-11.zip"` instead of letting ZipKit auto-generate one).
+  </Accordion>
+
+  <Accordion title="Consider file sizes" icon="database">
+    Very large files or many files can take longer to process. Monitor the status endpoint to track progress.
+  </Accordion>
+
+  <Accordion title="Use descriptive filenames in source URLs" icon="tag">
+    The filenames inside the ZIP will be extracted from the URL paths. Use descriptive filenames in your source URLs (e.g., `report-2025-11.pdf` instead of `file.pdf`).
+  </Accordion>
+
+  <Accordion title="Configure buckets properly" icon="bucket">
+    Ensure your destination bucket exists and has proper write permissions for the credentials configured in your project.
+  </Accordion>
+</AccordionGroup>
+
+## ZIP File Location
+
+When the ZIP is complete, it will be stored in your specified bucket.
+
+**If you provided a `key` parameter:**
+The ZIP will be stored at exactly that key in your bucket.
+```
+my-bucket/reports/monthly-2025-11.zip
+```
+
+**If you didn't provide a `key` parameter:**
+ZipKit will auto-generate a filename based on the ZIP's UUID:
+```
+zip_{UUID}.zip
+```
+
+For example: `zip_clx7g2m4p0000xyz123abc.zip`
+
+You can then access the file using your cloud storage provider's SDK, console, or direct URL.
+
+## Limits and Quotas
+
+<Note>
+  **Rate Limits**: API rate limits may apply depending on your plan. Contact support for details on your specific limits.
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Check ZIP Status" icon="magnifying-glass" href="/api-reference/get-zip">
+    Learn how to check the status of your ZIP jobs
+  </Card>
+
+  <Card title="Webhooks" icon="webhook" href="/api-reference/webhooks">
+    Set up webhooks to get notified when ZIPs are ready
+  </Card>
+
+  <Card title="Buckets" icon="bucket" href="/api-reference/buckets">
+    Learn about configuring cloud storage buckets
+  </Card>
+
+  <Card title="Code Examples" icon="code" href="/code-examples/python">
+    See complete end-to-end examples
+  </Card>
+</CardGroup>

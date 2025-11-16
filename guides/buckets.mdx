@@ -1,0 +1,219 @@
+---
+title: "Buckets"
+description: "Configure cloud storage buckets for your ZIP archives"
+---
+
+## Overview
+
+Buckets are cloud storage destinations where ZipKit stores your ZIP archives. Before you can create ZIPs, you need to configure at least one bucket in your project.
+
+ZipKit supports:
+- **AWS S3** - Amazon's Simple Storage Service
+- **Cloudflare R2** - Cloudflare's S3-compatible object storage
+
+## Configuring a Bucket
+
+Buckets are configured through the ZipKit dashboard, not via API. Here's how:
+
+### Step 1: Navigate to Buckets
+
+1. Log in to your ZipKit dashboard
+2. Select your project
+3. Go to the "Buckets" section
+4. Click "Add Bucket"
+
+### Step 2: Choose Your Provider
+
+Select either **AWS S3** or **Cloudflare R2** based on where you want to store your ZIPs.
+
+<Tabs>
+  <Tab title="AWS S3">
+    ### Required Information
+
+    <ParamField body="Bucket Name" type="string" required>
+      The name of your existing S3 bucket (e.g., `my-zipkit-archives`)
+
+      **Note:** The bucket must already exist in your AWS account. ZipKit won't create it for you.
+    </ParamField>
+
+    <ParamField body="Access Key ID" type="string" required>
+      Your AWS IAM access key ID (e.g., `AKIAIOSFODNN7EXAMPLE`)
+
+      **Security tip:** Create a dedicated IAM user for ZipKit with limited permissions (see below).
+    </ParamField>
+
+    <ParamField body="Secret Access Key" type="string" required>
+      Your AWS IAM secret access key
+
+      **Note:** This is stored securely and encrypted. You won't be able to view it after initial setup.
+    </ParamField>
+
+    <ParamField body="Region" type="string" required>
+      The AWS region where your bucket is located (e.g., `us-east-1`, `eu-west-1`)
+
+      **Note:** Required to connect to the correct S3 endpoint for your bucket.
+    </ParamField>
+
+    ### Required IAM Permissions
+
+    The IAM user must have permission to write to your bucket. Here's a minimal IAM policy:
+
+    ```json
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:PutObject",
+            "s3:PutObjectAcl"
+          ],
+          "Resource": "arn:aws:s3:::your-bucket-name/*"
+        }
+      ]
+    }
+    ```
+
+    **Security best practice:** Create a dedicated IAM user specifically for ZipKit with only these permissions.
+  </Tab>
+
+  <Tab title="Cloudflare R2">
+    ### Required Information
+
+    <ParamField body="Bucket Name" type="string" required>
+      The name of your existing R2 bucket (e.g., `my-zipkit-archives`)
+
+      **Note:** The bucket must already exist in your Cloudflare account.
+    </ParamField>
+
+    <ParamField body="Host" type="string" required>
+      The R2 endpoint for your account (e.g., `abc123.r2.cloudflarestorage.com`)
+
+      **Format:** `<account-id>.r2.cloudflarestorage.com`
+
+      Replace `<account-id>` with your Cloudflare account ID.
+    </ParamField>
+
+    <ParamField body="Access Key ID" type="string" required>
+      Your R2 access key ID
+
+      You can create API tokens in the Cloudflare dashboard under R2 > Manage R2 API Tokens.
+    </ParamField>
+
+    <ParamField body="Secret Access Key" type="string" required>
+      Your R2 secret access key
+
+      **Note:** This is stored securely and encrypted.
+    </ParamField>
+
+    <ParamField body="Account ID" type="string" required>
+      Your Cloudflare account ID
+
+      You can find this in your Cloudflare dashboard URL or in the R2 section.
+    </ParamField>
+
+    ### Creating an R2 Bucket
+
+    If you don't have an R2 bucket yet:
+
+    1. Go to the [Cloudflare Dashboard](https://dash.cloudflare.com/)
+    2. Navigate to R2
+    3. Click "Create bucket"
+    4. Choose a bucket name
+    5. Create the bucket
+    6. Go to "Manage R2 API Tokens"
+    7. Create a new API token with "Object Read & Write" permissions for your bucket
+    8. Save the Access Key ID and Secret Access Key for ZipKit configuration
+
+    ### R2 Advantages
+
+    - **No egress fees** - Free data transfer out
+    - **S3-compatible API** - Works with existing S3 tools
+    - **Competitive pricing** - Often cheaper than S3
+  </Tab>
+</Tabs>
+
+### Step 3: Save and Test
+
+1. Enter all required information
+2. Click "Save" or "Create Bucket"
+3. If successful, your bucket will appear in the list
+
+## Using Buckets in API Calls
+
+When creating a ZIP via the API, reference your bucket by its **name**:
+
+```bash
+curl -X POST https://zipkit.io/api/v1/zips \
+  -H "Authorization: Bearer your-access-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "urls": ["https://example.com/file.pdf"],
+    "bucket_name": "my-zipkit-archives",
+    "service": "s3"
+  }'
+```
+
+The `bucket_name` must match a bucket you've configured in your project settings.
+
+## Managing Buckets
+
+### Viewing Buckets
+
+All configured buckets are listed in your project's "Buckets" section. You can see:
+- Bucket name
+- Service (S3 or R2)
+- Creation date
+- Region (if applicable)
+
+**Security:** The access keys are never displayed after initial creation.
+
+### Editing Buckets
+
+To update bucket credentials:
+1. Go to the "Buckets" section
+2. Click "Edit" next to the bucket
+3. Update the credentials
+4. Save changes
+
+### Deleting Buckets
+
+To remove a bucket configuration:
+1. Go to the "Buckets" section
+2. Click "Delete" next to the bucket
+3. Confirm deletion
+
+<Warning>
+  **Warning:** You cannot delete a bucket if there are existing ZIP jobs associated with it. The ZIP jobs will fail if you delete the bucket configuration.
+</Warning>
+
+## Multiple Buckets
+
+You can configure multiple buckets in a single project:
+
+**Use cases:**
+- Separate buckets for different types of archives
+- Geographic distribution (buckets in different regions)
+- Cost optimization (use R2 for some ZIPs, S3 for others)
+
+When creating a ZIP, specify which bucket to use with the `bucket_name` parameter.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create a ZIP" icon="file-zipper" href="/api-reference/create-zip">
+    Start creating ZIP archives with your configured bucket
+  </Card>
+
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Follow the complete guide from setup to first ZIP
+  </Card>
+
+  <Card title="Authentication" icon="key" href="/api-reference/authentication">
+    Set up API access tokens for your project
+  </Card>
+
+  <Card title="Code Examples" icon="code" href="/code-examples/python">
+    See complete examples using buckets
+  </Card>
+</CardGroup>

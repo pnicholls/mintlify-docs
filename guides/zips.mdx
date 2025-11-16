@@ -1,0 +1,206 @@
+---
+title: "Zips"
+description: "Understanding ZIP creation and lifecycle in ZipKit"
+---
+
+## Overview
+
+ZIPs are the core of ZipKit - they represent jobs that fetch files from remote URLs, bundle them into a ZIP archive, and store the result in your cloud storage bucket.
+
+## How ZIP Creation Works
+
+When you create a ZIP, ZipKit performs these steps asynchronously:
+
+1. **Validates** your request (bucket exists, URLs are valid)
+2. **Downloads** each file from the provided URLs
+3. **Creates** a ZIP archive containing all downloaded files
+4. **Uploads** the ZIP to your configured cloud storage bucket
+5. **Sends** a webhook notification (if configured)
+
+The entire process is asynchronous - the API returns immediately with a ZIP ID, and processing happens in the background.
+
+## ZIP Lifecycle
+
+A ZIP job progresses through these statuses:
+
+<Steps>
+  <Step title="none">
+    Initial state when the ZIP is first created. The job is queued but hasn't started processing yet.
+  </Step>
+
+  <Step title="processing">
+    ZipKit is actively downloading files and creating the ZIP archive. This is where most of the work happens.
+  </Step>
+
+  <Step title="succeeded">
+    The ZIP was successfully created and uploaded to your bucket. The file is ready to use.
+  </Step>
+
+  <Step title="failed">
+    Something went wrong during processing. Common causes include inaccessible URLs or bucket permission issues.
+  </Step>
+</Steps>
+
+## Creating a ZIP
+
+Create a ZIP via the API by providing:
+
+- **urls**: Array of file URLs to include in the ZIP
+- **bucket_name**: Name of the configured bucket to store the ZIP
+- **key** (optional): Custom filename/path for the ZIP
+- **service** (optional): `s3` or `r2` (defaults to `s3`)
+
+```bash
+curl -X POST https://zipkit.io/api/v1/zips \
+  -H "Authorization: Bearer your-access-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "urls": [
+      "https://example.com/file1.pdf",
+      "https://example.com/file2.jpg"
+    ],
+    "bucket_name": "my-bucket",
+    "key": "my-archive.zip"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "clx7g2m4p0000xyz123abc",
+    "status": "none"
+  }
+}
+```
+
+## Tracking Progress
+
+Configure a webhook URL in your project settings to receive automatic notifications when ZIPs complete:
+
+```json
+{
+  "type": "COMPLETED",
+  "zip_id": "clx7g2m4p0000xyz123abc",
+  "status": "succeeded",
+  "bucket": {
+    "service": "s3",
+    "name": "my-bucket"
+  },
+  "key": "my-archive.zip"
+}
+```
+
+See [Webhooks](/guides/webhooks) for complete webhook documentation.
+
+## Where ZIPs are Stored
+
+When a ZIP completes successfully, it's stored in your configured cloud storage bucket.
+
+**If you provided a `key` parameter:**
+
+The ZIP is stored at that exact location:
+```
+my-bucket/my-archive.zip
+```
+
+**If you didn't provide a `key`:**
+
+ZipKit auto-generates a filename:
+```
+my-bucket/zip_clx7g2m4p0000xyz123abc.zip
+```
+
+You can then access the ZIP file using your cloud provider's SDK, console, or direct URL.
+
+## File Naming Inside ZIPs
+
+Files inside the ZIP archive are named based on their source URLs:
+
+- `https://example.com/documents/report.pdf` → `report.pdf`
+- `https://example.com/images/photo.jpg` → `photo.jpg`
+
+The filename is extracted from the URL path. Use descriptive filenames in your source URLs for better organization.
+
+## Common Patterns
+
+### One-Time Archives
+
+Create a ZIP once for a specific set of files:
+
+```bash
+{
+  "urls": ["https://example.com/invoice.pdf"],
+  "bucket_name": "invoices",
+  "key": "invoice-12345.zip"
+}
+```
+
+### Recurring Archives
+
+Create ZIPs on a schedule (e.g., daily reports):
+
+```bash
+{
+  "urls": ["https://example.com/reports/daily-2025-11-16.csv"],
+  "bucket_name": "reports",
+  "key": "reports/daily-2025-11-16.zip"
+}
+```
+
+### Dynamic Content
+
+Fetch the latest files from a content system and bundle them:
+
+```bash
+{
+  "urls": [
+    "https://cms.example.com/latest/article.html",
+    "https://cms.example.com/latest/images/header.jpg"
+  ],
+  "bucket_name": "archives",
+  "key": "content/latest.zip"
+}
+```
+
+## Managing ZIPs
+
+### Viewing ZIPs
+
+View all ZIP jobs for a project in the dashboard. The ZIP list shows:
+- ZIP ID (masked)
+- Status
+- Creation date
+- Bucket used
+
+### Failed ZIPs
+
+If a ZIP fails, common causes include:
+
+- **Inaccessible URLs**: Source files returned 404 or other errors
+- **Network issues**: Timeouts or connection failures
+- **Bucket permissions**: Insufficient permissions to write to the bucket
+- **Invalid bucket**: Bucket doesn't exist or was deleted
+
+Check the status and retry with corrected parameters if needed.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create ZIP API" icon="plus" href="/api-reference/create-zip">
+    Complete API reference for creating ZIPs
+  </Card>
+
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Set up automatic notifications
+  </Card>
+
+  <Card title="Buckets" icon="bucket" href="/guides/buckets">
+    Configure cloud storage for your ZIPs
+  </Card>
+
+  <Card title="Authentication" icon="key" href="/guides/authentication">
+    Learn about access tokens
+  </Card>
+</CardGroup>

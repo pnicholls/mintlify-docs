@@ -1,0 +1,168 @@
+---
+title: "Authentication"
+description: "Learn how to authenticate your API requests with access tokens"
+---
+
+## Overview
+
+ZipKit uses **Bearer token authentication** for all API requests. Access tokens are created within your project dashboard and provide secure access to the API.
+
+## Creating an Access Token
+
+<Steps>
+  <Step title="Navigate to Access Tokens">
+    Log in to your ZipKit dashboard and select your project. Go to the "Access Tokens" section.
+  </Step>
+
+  <Step title="Create a new token">
+    1. Click the "Create Token" button
+    2. Click "Create"
+  </Step>
+
+  <Step title="Copy your token">
+    **Important**: Copy the token immediately! For security reasons, you won't be able to see it again after leaving this page.
+
+    If you lose a token, you'll need to create a new one and update any applications using the old token.
+  </Step>
+</Steps>
+
+## Using Your Access Token
+
+Include your access token in the `Authorization` header of every API request using the Bearer scheme:
+
+```bash
+Authorization: Bearer YOUR_ACCESS_TOKEN
+```
+
+### Example Request
+
+```bash
+curl -X POST https://zipkit.io/api/v1/zips \
+  -H "Authorization: Bearer your-access-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "urls": ["https://example.com/file.pdf"],
+    "bucket_name": "my-bucket"
+  }'
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Rotate tokens regularly" icon="arrows-rotate">
+    For enhanced security, rotate your access tokens periodically:
+
+    1. Create a new token
+    2. Update your application to use the new token
+    3. Verify the new token works
+    4. Delete the old token
+  </Accordion>
+
+  <Accordion title="Store tokens securely" icon="lock">
+    **Never** commit tokens to version control or expose them in client-side code.
+
+    ✅ **Do:**
+    - Store tokens in environment variables
+    - Use secret management services (AWS Secrets Manager, HashiCorp Vault, etc.)
+    - Keep tokens in secure configuration files excluded from version control
+
+    ❌ **Don't:**
+    - Hardcode tokens in your application code
+    - Commit tokens to Git repositories
+    - Share tokens in plain text via email or messaging apps
+    - Include tokens in client-side JavaScript
+  </Accordion>
+
+  <Accordion title="Limit token distribution" icon="users">
+    Only create as many tokens as you need, and keep track of where each token is used. This makes it easier to audit access and revoke tokens when necessary.
+  </Accordion>
+
+  <Accordion title="Monitor token usage" icon="chart-line">
+    Keep track of which tokens are actively being used. If you see unexpected API calls, you may need to rotate your tokens.
+  </Accordion>
+</AccordionGroup>
+
+## Managing Tokens
+
+### Listing Tokens
+
+You can view all access tokens for a project in the dashboard. The token list shows:
+- Masked token (e.g., `1icNY**************Ida8` - showing first and last few characters)
+- Creation date
+
+The full token value is **never** displayed after initial creation.
+
+### Revoking Tokens
+
+To revoke a token:
+
+1. Go to the "Access Tokens" section
+2. Find the token you want to revoke
+3. Click "Delete"
+4. Confirm the deletion
+
+<Warning>
+  Revoking a token is **immediate** and **irreversible**. Any applications using that token will immediately lose API access.
+</Warning>
+
+## Authentication Errors
+
+### 401 Unauthorized
+
+You'll receive a `401 Unauthorized` response if:
+
+- No `Authorization` header is provided
+- The token is invalid or has been revoked
+- The token format is incorrect (not using `Bearer` scheme)
+
+**Example error response:**
+
+```json
+{
+  "error": "unauthorized",
+  "message": "Invalid or missing access token"
+}
+```
+
+**Solution**: Check that you're including the correct `Authorization` header with a valid token.
+
+### 403 Forbidden
+
+You'll receive a `403 Forbidden` response if:
+
+- You're trying to access a resource from a different project
+- The token doesn't have permission for the requested operation
+
+**Example error response:**
+
+```json
+{
+  "error": "forbidden",
+  "message": "Access denied to this resource"
+}
+```
+
+**Solution**: Verify you're using the correct token for the project, and that the resource ID belongs to that project.
+
+## Security Considerations
+
+<Note>
+  **Token Security**: Access tokens provide full access to your project's API. Treat them like passwords:
+
+  - Never share tokens publicly
+  - Revoke tokens immediately if compromised
+  - Use HTTPS for all API requests (never HTTP)
+  - Implement token rotation policies for production systems
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create a ZIP" icon="file-zipper" href="/api-reference/create-zip">
+    Learn how to create ZIP archives via the API
+  </Card>
+
+  <Card title="Code Examples" icon="code" href="/code-examples/python">
+    See authentication in action with complete code examples
+  </Card>
+</CardGroup>

@@ -14,8 +14,21 @@
         "tab": "Docs",
         "groups": [
           {
+            "group": "Getting Started",
+            "pages": ["index", "quickstart"]
+          },
+          {
             "group": "Guides",
-            "pages": ["quickstart"]
+            "pages": [
+              "guides/authentication",
+              "guides/buckets",
+              "guides/zips",
+              "guides/webhooks"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "pages": ["api-reference/create-zip"]
           }
         ]
       }
@@ -48,12 +61,5 @@
       "cursor",
       "vscode"
     ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
   }
 }

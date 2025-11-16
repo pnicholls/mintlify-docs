@@ -1,15 +1,95 @@
 ---
 title: "Welcome"
-description: "Welcome to the ZipKit docs"
+description: "Simple API for creating ZIP archives from remote files"
 ---
 
-ZipKit fetches the files at the URLs you provide, bundles them into a single ZIP, and stores the result in your cloud bucket. When the ZIP is finished, ZipKit sends a webhook so you know it’s ready.
+## What is ZipKit?
+
+ZipKit is a powerful API that fetches files from the URLs you provide, bundles them into a single ZIP archive, and stores the result in your cloud storage bucket (S3 or R2). When the ZIP is ready, ZipKit sends a webhook notification so you can process it immediately.
+
+**Key Features:**
+
+- 🚀 **Simple REST API** - Create ZIPs with a single API call
+- ☁️ **Your cloud storage** - ZIPs are stored in your own S3 or R2 buckets
+- 🔔 **Webhook notifications** - Get instant alerts when ZIPs are ready
+- 🔒 **Secure** - All requests use HTTPS and bearer token authentication
+- ⚡ **Fast & scalable** - Handles large files and multiple concurrent jobs
+
+## Quick Start
+
+Get up and running in minutes:
 
 <Card
-  title="Quickstart"
+  title="Quickstart Guide"
   icon="rocket"
   href="/quickstart"
-  horizontal
 >
-  You will be up and running in less than 15 minutes.
+  Follow our step-by-step guide to create your first ZIP in under 15 minutes
 </Card>
+
+## Core Concepts
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/guides/authentication">
+    Secure your API requests with access tokens
+  </Card>
+
+  <Card title="Buckets" icon="bucket" href="/guides/buckets">
+    Configure S3 or R2 storage for your ZIPs
+  </Card>
+
+  <Card title="Zips" icon="file-zipper" href="/guides/zips">
+    Bundle remote files into ZIP archives
+  </Card>
+
+  <Card title="Webhooks" icon="webhook" href="/guides/webhooks">
+    Receive real-time notifications
+  </Card>
+</CardGroup>
+
+## API Reference
+
+Complete documentation for all API endpoints:
+
+<CardGroup cols={2}>
+  <Card title="Create ZIP" icon="plus" href="/api-reference/create-zip">
+    `POST /api/v1/zips` - Create a new ZIP archive
+  </Card>
+</CardGroup>
+
+## Common Use Cases
+
+**Document Processing**
+Bundle multiple documents (PDFs, Word files, spreadsheets) into a single downloadable archive for users.
+
+**Image Galleries**
+Create ZIP archives of photo collections for easy download.
+
+**Backup & Export**
+Generate ZIP exports of user data for compliance or data portability.
+
+**Report Distribution**
+Combine multiple report files into a single archive for distribution.
+
+**Asset Delivery**
+Package design assets, code files, or resources for delivery to clients.
+
+## How It Works
+
+1. **Configure** your cloud storage bucket (S3 or R2) in the ZipKit dashboard
+2. **Create** an access token for API authentication
+3. **Send** a POST request with URLs of files to bundle
+4. **Receive** a webhook when the ZIP is ready in your bucket
+5. **Download** or share the ZIP from your cloud storage
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get started with your first ZIP
+  </Card>
+
+  <Card title="API Reference" icon="book" href="/api-reference/create-zip">
+    Explore the complete API documentation
+  </Card>
+</CardGroup>
