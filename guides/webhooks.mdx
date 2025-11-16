@@ -1,17 +1,17 @@
 ---
 title: "Webhooks"
-description: "Receive automatic notifications when ZIP archives are ready"
+description: "Receive automatic notifications when zip archives are ready"
 ---
 
 ## Overview
 
-Webhooks allow you to receive real-time notifications when your ZIP creation jobs complete. Instead of polling the status endpoint, ZipKit will automatically send an HTTP POST request to your specified URL when a ZIP finishes processing.
+Webhooks allow you to receive real-time notifications when your zip creation jobs complete. Instead of polling the status endpoint, ZipKit will automatically send an HTTP POST request to your specified URL when a zip finishes processing.
 
 ## Why Use Webhooks?
 
-- ✅ **Real-time notifications** - Get instant updates when ZIPs complete
+- ✅ **Real-time notifications** - Get instant updates when zips complete
 - ✅ **Reduce API calls** - No need to poll the status endpoint repeatedly
-- ✅ **Better user experience** - Respond immediately to completed ZIPs
+- ✅ **Better user experience** - Respond immediately to completed zips
 - ✅ **Reliable delivery** - Webhooks are sent as soon as the job completes
 
 ## Configuring Webhooks
@@ -35,16 +35,12 @@ Webhooks are configured through the ZipKit dashboard for your project.
 
     **Description (Optional)**
     Add a description to help identify this webhook's purpose.
-    Example: "Production webhook for ZIP completion events"
-
-    **Authorization Header (Optional)**
-    If your webhook endpoint requires authentication, you can specify a custom Authorization header value.
-    Example: `Bearer my-secret-token`
+    Example: "Production webhook for zip completion events"
   </Step>
 
   <Step title="Save and test">
     1. Click "Save" or "Create"
-    2. Your webhook will now receive notifications for all ZIP jobs in this project
+    2. Your webhook will now receive notifications for all zip jobs in this project
   </Step>
 </Steps>
 
@@ -54,9 +50,9 @@ Webhooks are configured through the ZipKit dashboard for your project.
 
 ## Webhook Payload
 
-When a ZIP completes (successfully or with failure), ZipKit sends a POST request to your webhook URL with the following JSON payload:
+When a zip completes (successfully or with failure), ZipKit sends a POST request to your webhook URL with the following JSON payload:
 
-### Successful ZIP
+### Successful Zip
 
 ```json
 {
@@ -71,11 +67,14 @@ When a ZIP completes (successfully or with failure), ZipKit sends a POST request
   "checksum": "d8e8fca2dc0f896fd7cb4cb0031ba249",
   "byte_size": 0,
   "content_type": "application/zip, application/octet-stream",
-  "metadata": {}
+  "metadata": {
+    "user_id": "user_123",
+    "order_id": "order_456"
+  }
 }
 ```
 
-### Failed ZIP
+### Failed Zip
 
 ```json
 {
@@ -87,7 +86,10 @@ When a ZIP completes (successfully or with failure), ZipKit sends a POST request
     "name": "my-destination-bucket"
   },
   "key": "reports/monthly-2025-11.zip",
-  "metadata": {}
+  "metadata": {
+    "user_id": "user_123",
+    "order_id": "order_456"
+  }
 }
 ```
 
@@ -98,15 +100,15 @@ When a ZIP completes (successfully or with failure), ZipKit sends a POST request
 </ResponseField>
 
 <ResponseField name="zip_id" type="string">
-  The unique identifier (UUID) of the ZIP job. This matches the `id` returned when you created the ZIP.
+  The unique identifier (UUID) of the zip job. This matches the `id` returned when you created the zip.
 </ResponseField>
 
 <ResponseField name="status" type="string">
-  The final status of the ZIP job.
+  The final status of the zip job. This is always a string value.
 
   **Possible values:**
-  - `succeeded` - ZIP was created and uploaded successfully
-  - `failed` - ZIP creation or upload failed
+  - `"succeeded"` - zip was created and uploaded successfully
+  - `"failed"` - zip creation or upload failed
 </ResponseField>
 
 <ResponseField name="bucket" type="object">
@@ -118,27 +120,27 @@ When a ZIP completes (successfully or with failure), ZipKit sends a POST request
 </ResponseField>
 
 <ResponseField name="bucket.name" type="string">
-  The name of the bucket where the ZIP was stored (or attempted to be stored).
+  The name of the bucket where the zip was stored (or attempted to be stored).
 </ResponseField>
 
 <ResponseField name="key" type="string">
-  The storage key (filename/path) of the ZIP archive in the bucket.
+  The storage key (filename/path) of the zip archive in the bucket.
 </ResponseField>
 
 <ResponseField name="checksum" type="string">
-  The ETag/checksum of the uploaded ZIP file. Only present for successful uploads.
+  The ETag/checksum of the uploaded zip file. Only present for successful uploads.
 </ResponseField>
 
 <ResponseField name="byte_size" type="number">
-  The size of the ZIP file in bytes.
+  The size of the zip file in bytes.
 </ResponseField>
 
 <ResponseField name="content_type" type="string">
-  The MIME type of the ZIP file. Typically `"application/zip, application/octet-stream"`.
+  The MIME type of the zip file. Typically `"application/zip, application/octet-stream"`.
 </ResponseField>
 
 <ResponseField name="metadata" type="object">
-  Any custom metadata associated with the ZIP job.
+  The custom metadata object that was provided when the zip was created. Contains any custom data you attached to track user IDs, order IDs, or other contextual information. Returns an empty object `{}` if no metadata was provided.
 </ResponseField>
 
 ## Implementing a Webhook Endpoint
@@ -149,120 +151,6 @@ Your webhook endpoint should:
 2. **Respond quickly** (within 5-10 seconds)
 3. **Return a 2xx status code** to acknowledge receipt
 4. **Verify the webhook source** (optional but recommended)
-
-### Example Implementations
-
-<CodeGroup>
-
-```python Python (Flask)
-from flask import Flask, request, jsonify
-
-app = Flask(__name__)
-
-@app.route('/webhooks/zipkit', methods=['POST'])
-def zipkit_webhook():
-    # Parse the webhook payload
-    payload = request.json
-
-    # Verify authorization if you configured one
-    auth_header = request.headers.get('Authorization')
-    if auth_header != 'Bearer my-secret-token':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    # Process the webhook
-    zip_id = payload['zip_id']
-    status = payload['status']
-
-    if status == 'succeeded':
-        # ZIP is ready!
-        bucket = payload['bucket']['name']
-        key = payload['key']
-        print(f"ZIP {zip_id} is ready at {bucket}/{key}")
-
-        # Download or process the ZIP
-        # process_zip(bucket, key)
-    else:
-        # ZIP failed
-        print(f"ZIP {zip_id} failed")
-
-    # Return 200 to acknowledge receipt
-    return jsonify({'received': True}), 200
-
-if __name__ == '__main__':
-    app.run(port=5000)
-```
-
-```javascript JavaScript (Express)
-const express = require('express');
-const app = express();
-
-app.use(express.json());
-
-app.post('/webhooks/zipkit', (req, res) => {
-  // Verify authorization if configured
-  const authHeader = req.headers.authorization;
-  if (authHeader !== 'Bearer my-secret-token') {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  // Parse the webhook payload
-  const payload = req.body;
-  const { zip_id, status, bucket, key } = payload;
-
-  if (status === 'succeeded') {
-    // ZIP is ready!
-    console.log(`ZIP ${zip_id} is ready at ${bucket.name}/${key}`);
-
-    // Download or process the ZIP
-    // processZip(bucket.name, key);
-  } else {
-    // ZIP failed
-    console.log(`ZIP ${zip_id} failed`);
-  }
-
-  // Return 200 to acknowledge receipt
-  res.status(200).json({ received: true });
-});
-
-app.listen(5000, () => {
-  console.log('Webhook server running on port 5000');
-});
-```
-
-```ruby Ruby (Sinatra)
-require 'sinatra'
-require 'json'
-
-post '/webhooks/zipkit' do
-  # Verify authorization if configured
-  auth_header = request.env['HTTP_AUTHORIZATION']
-  halt 401, { error: 'Unauthorized' }.to_json unless auth_header == 'Bearer my-secret-token'
-
-  # Parse the webhook payload
-  payload = JSON.parse(request.body.read)
-  zip_id = payload['zip_id']
-  status = payload['status']
-
-  if status == 'succeeded'
-    # ZIP is ready!
-    bucket = payload['bucket']['name']
-    key = payload['key']
-    puts "ZIP #{zip_id} is ready at #{bucket}/#{key}"
-
-    # Download or process the ZIP
-    # process_zip(bucket, key)
-  else
-    # ZIP failed
-    puts "ZIP #{zip_id} failed"
-  end
-
-  # Return 200 to acknowledge receipt
-  status 200
-  { received: true }.to_json
-end
-```
-
-</CodeGroup>
 
 ## Best Practices
 
@@ -284,22 +172,18 @@ end
   </Accordion>
 
   <Accordion title="Verify webhook authenticity" icon="shield-check">
-    Use the Authorization header feature to add a secret token that only you and ZipKit know. Verify this token on every webhook request.
-
-    ```python
-    SECRET_TOKEN = os.environ['ZIPKIT_WEBHOOK_SECRET']
-
-    auth_header = request.headers.get('Authorization')
-    if auth_header != f'Bearer {SECRET_TOKEN}':
-        return jsonify({'error': 'Invalid token'}), 401
-    ```
+    Since webhooks don't currently include authentication headers, verify requests by:
+    - Restricting webhook endpoint access to ZipKit's IP addresses
+    - Using HTTPS to ensure requests aren't intercepted
+    - Validating the webhook payload structure and data types
+    - Implementing request signing (future feature)
   </Accordion>
 
   <Accordion title="Handle retries gracefully" icon="arrows-rotate">
     Make your webhook endpoint idempotent. ZipKit may retry sending webhooks if your endpoint fails to respond. Use the `zip_id` to deduplicate events.
 
     ```python
-    # Check if we've already processed this ZIP
+    # Check if we've already processed this zip
     if already_processed(payload['zip_id']):
         return jsonify({'received': True}), 200
 
@@ -315,7 +199,7 @@ end
     ```python
     import logging
 
-    logger.info(f"Received webhook for ZIP {zip_id}: {status}")
+    logger.info(f"Received webhook for zip {zip_id}: {status}")
     ```
   </Accordion>
 
@@ -386,7 +270,7 @@ To remove a webhook:
 3. Confirm deletion
 
 <Note>
-  Once deleted, you'll stop receiving notifications for ZIP completions. Any in-flight webhooks may still be delivered.
+  Once deleted, you'll stop receiving notifications for zip completions. Any in-flight webhooks may still be delivered.
 </Note>
 
 ## Troubleshooting
@@ -414,26 +298,27 @@ This can happen if:
 
 **Solution:** Make your webhook handler idempotent using the `zip_id` to deduplicate.
 
-### Authorization header not working
+### Securing webhook endpoints
 
-**Check:**
-- The Authorization header is set correctly in ZipKit
-- Your code is checking the correct header (`Authorization`)
-- The value matches exactly (case-sensitive)
+**Best practices:**
+- Use HTTPS with valid SSL certificates
+- Restrict access to your webhook endpoint by IP address
+- Validate the structure and content of webhook payloads
+- Log all webhook receipts for monitoring
 
 ## Security Considerations
 
 <Warning>
-  **Webhook Security**: Anyone who knows your webhook URL could potentially send fake webhook requests. Always verify webhook authenticity using the Authorization header.
+  **Webhook Security**: Anyone who knows your webhook URL could potentially send fake webhook requests. Secure your webhook endpoint appropriately.
 </Warning>
 
 Best practices:
-- ✅ Use a strong, random token in the Authorization header
-- ✅ Store the token securely (environment variables, secrets manager)
 - ✅ Use HTTPS to encrypt webhook payloads in transit
-- ✅ Validate the webhook payload structure
-- ✅ Log failed authentication attempts
-- ✅ Rotate your webhook tokens periodically
+- ✅ Restrict access to your webhook endpoint by IP address
+- ✅ Validate the webhook payload structure and data types
+- ✅ Use unique, hard-to-guess webhook URLs
+- ✅ Log all webhook receipts for monitoring
+- ✅ Implement idempotency to handle duplicate deliveries
 
 ## Multiple Webhooks
 
@@ -443,4 +328,4 @@ You can configure multiple webhook URLs in a single project for:
 - Redundancy (send to multiple systems)
 - Different services that need to be notified
 
-All configured webhooks will receive notifications for every ZIP completion in the project.
+All configured webhooks will receive notifications for every zip completion in the project.

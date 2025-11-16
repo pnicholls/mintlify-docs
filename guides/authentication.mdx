@@ -117,12 +117,11 @@ You'll receive a `401 Unauthorized` response if:
 
 **Example error response:**
 
-```json
-{
-  "error": "unauthorized",
-  "message": "Invalid or missing access token"
-}
 ```
+Unauthorized
+```
+
+Returns plain text with 401 status code.
 
 **Solution**: Check that you're including the correct `Authorization` header with a valid token.
 
@@ -137,8 +136,9 @@ You'll receive a `403 Forbidden` response if:
 
 ```json
 {
-  "error": "forbidden",
-  "message": "Access denied to this resource"
+  "errors": {
+    "detail": "Forbidden"
+  }
 }
 ```
 

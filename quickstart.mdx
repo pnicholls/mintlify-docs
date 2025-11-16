@@ -1,11 +1,11 @@
 ---
 title: "Quickstart"
-description: "Create your first ZIP archive in minutes"
+description: "Create your first zip archive in minutes"
 ---
 
 ## Get started in three steps
 
-This guide will walk you through creating your first ZIP archive using the ZipKit API. You'll go from signup to a working API call in just a few minutes.
+This guide will walk you through creating your first zip archive using the ZipKit API. You'll go from signup to a working API call in just a few minutes.
 
 ### Step 1: Create your account and project
 
@@ -15,7 +15,7 @@ This guide will walk you through creating your first ZIP archive using the ZipKi
   </Step>
 
   <Step title="Create a project">
-    Projects help you organize your ZIP operations. From your dashboard:
+    Projects help you organize your zip operations. From your dashboard:
     1. Click "New Project"
     2. Give your project a name (e.g., "Production")
     3. Click "Create"
@@ -24,7 +24,7 @@ This guide will walk you through creating your first ZIP archive using the ZipKi
 
 ### Step 2: Configure your storage bucket
 
-ZipKit stores ZIP archives in your cloud storage. You'll need to configure either an AWS S3 or Cloudflare R2 bucket.
+ZipKit stores zip archives in your cloud storage. You'll need to configure either an AWS S3 or Cloudflare R2 bucket.
 
 <Tabs>
   <Tab title="AWS S3">
@@ -68,7 +68,7 @@ ZipKit stores ZIP archives in your cloud storage. You'll need to configure eithe
   </Step>
 
   <Step title="Make your first API call">
-    Now you're ready to create your first ZIP! Replace the placeholders in this example:
+    Now you're ready to create your first zip! Replace the placeholders in this example:
 
     ```bash
     curl -X POST https://zipkit.io/api/v1/zips \
@@ -76,9 +76,18 @@ ZipKit stores ZIP archives in your cloud storage. You'll need to configure eithe
       -H "Content-Type: application/json" \
       -d '{
         "urls": [
-          "https://my-source-bucket.s3.amazonaws.com/file1.pdf",
-          "https://my-source-bucket.s3.amazonaws.com/image.jpg",
-          "https://my-source-bucket.s3.amazonaws.com/document.docx"
+          {
+            "url": "https://my-source-bucket.s3.amazonaws.com/file1.pdf",
+            "filename": "document.pdf"
+          },
+          {
+            "url": "https://my-source-bucket.s3.amazonaws.com/image.jpg",
+            "filename": "image.jpg"
+          },
+          {
+            "url": "https://my-source-bucket.s3.amazonaws.com/document.docx",
+            "filename": "report.docx"
+          }
         ],
         "bucket_name": "my-destination-bucket",
         "key": "my-archive.zip"
@@ -90,7 +99,7 @@ ZipKit stores ZIP archives in your cloud storage. You'll need to configure eithe
     ```json
     {
       "data": {
-        "id": "clx7g2m4p0000...",
+        "uuid": "clx7g2m4p0000...",
         "status": "none"
       }
     }
@@ -100,7 +109,7 @@ ZipKit stores ZIP archives in your cloud storage. You'll need to configure eithe
   </Step>
 
   <Step title="Set up webhooks (optional)">
-    To get notified when your ZIP is ready, configure a webhook URL in your project settings. ZipKit will send a notification when the ZIP completes.
+    To get notified when your zip is ready, configure a webhook URL in your project settings. ZipKit will send a notification when the zip completes.
 
     See the [Webhooks guide](/guides/webhooks) to set this up.
   </Step>
@@ -110,6 +119,6 @@ ZipKit stores ZIP archives in your cloud storage. You'll need to configure eithe
 
 1. **ZipKit received your request** with a list of URLs to bundle
 2. **Downloaded each file** from the URLs you provided
-3. **Created a ZIP archive** containing all the files
-4. **Uploaded the ZIP** to your configured cloud storage bucket
-5. The ZIP is now available in your bucket with a filename like `zip_clx7g2m4p0000....zip`
+3. **Created a zip archive** containing all the files
+4. **Uploaded the zip** to your configured cloud storage bucket
+5. The zip is now available in your bucket at the `key` you specified (e.g., `my-archive.zip`)

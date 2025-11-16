@@ -1,18 +1,18 @@
 ---
 title: "Buckets"
-description: "Configure cloud storage buckets for your ZIP archives"
+description: "Configure cloud storage buckets for your zip archives"
 ---
 
 ## Overview
 
-Buckets are cloud storage destinations where ZipKit stores your ZIP archives. Before you can create ZIPs, you need to configure at least one bucket in your project.
+Buckets are cloud storage destinations where ZipKit stores your zip archives. Before you can create zips, you need to configure at least one bucket in your project.
 
 ZipKit supports:
 - **AWS S3** - Amazon's Simple Storage Service
 - **Cloudflare R2** - Cloudflare's S3-compatible object storage
 
 <Note>
-  **Why bucket credentials are required:** ZipKit streams ZIP archives directly to your bucket using multipart uploads. A presigned URL cannot be used since they don't support the multipart upload operations needed for efficient streaming.
+  **Why bucket credentials are required:** ZipKit streams zip archives directly to your bucket using multipart uploads. A presigned URL cannot be used since they don't support the multipart upload operations needed for efficient streaming.
 </Note>
 
 ## Configuring a Bucket
@@ -28,7 +28,7 @@ Buckets are configured through the ZipKit dashboard, not via API. Here's how:
 
 ### Step 2: Choose Your Provider
 
-Select either **AWS S3** or **Cloudflare R2** based on where you want to store your ZIPs.
+Select either **AWS S3** or **Cloudflare R2** based on where you want to store your zips.
 
 <Tabs>
   <Tab title="AWS S3">
@@ -145,14 +145,19 @@ Select either **AWS S3** or **Cloudflare R2** based on where you want to store y
 
 ## Using Buckets in API Calls
 
-When creating a ZIP via the API, reference your bucket by its **name**:
+When creating a zip via the API, reference your bucket by its **name**:
 
 ```bash
 curl -X POST https://zipkit.io/api/v1/zips \
   -H "Authorization: Bearer your-access-token" \
   -H "Content-Type: application/json" \
   -d '{
-    "urls": ["https://example.com/file.pdf"],
+    "urls": [
+      {
+        "url": "https://example.com/file.pdf",
+        "filename": "document.pdf"
+      }
+    ],
     "bucket_name": "my-zipkit-archives",
     "service": "s3"
   }'
@@ -188,7 +193,7 @@ To remove a bucket configuration:
 3. Confirm deletion
 
 <Warning>
-  **Warning:** You cannot delete a bucket if there are existing ZIP jobs associated with it. The ZIP jobs will fail if you delete the bucket configuration.
+  **Warning:** You cannot delete a bucket if there are existing zip jobs associated with it. The zip jobs will fail if you delete the bucket configuration.
 </Warning>
 
 ## Multiple Buckets
@@ -198,6 +203,6 @@ You can configure multiple buckets in a single project:
 **Use cases:**
 - Separate buckets for different types of archives
 - Geographic distribution (buckets in different regions)
-- Cost optimization (use R2 for some ZIPs, S3 for others)
+- Cost optimization (use R2 for some zips, S3 for others)
 
-When creating a ZIP, specify which bucket to use with the `bucket_name` parameter.
+When creating a zip, specify which bucket to use with the `bucket_name` parameter.

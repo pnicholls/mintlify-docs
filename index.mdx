@@ -5,13 +5,13 @@ description: "A simple API for zipping files from URLs"
 
 ## What is ZipKit?
 
-ZipKit is a powerful API that fetches files from the URLs you provide, bundles them into a single ZIP archive, and stores the result in your cloud storage bucket (S3 or R2). When the ZIP is ready, ZipKit sends a webhook notification so your system knows as soon as it’s ready.
+ZipKit is a powerful API that fetches files from the URLs you provide, bundles them into a single ZIP archive, and stores the result in your cloud storage bucket (S3 or R2). When the ZIP is ready, ZipKit sends a webhook notification so your system knows as soon as it's ready.
 
 **Key Features:**
 
-- 🚀 **Simple REST API** - Create ZIPs with a single API call
-- ☁️ **Your cloud storage** - ZIPs are stored in your own S3 or R2 buckets
-- 🔔 **Webhook notifications** - Get instant alerts when ZIPs are ready
+- 🚀 **Simple REST API** - Create zips with a single API call
+- ☁️ **Your cloud storage** - Zips are stored in your own S3 or R2 buckets
+- 🔔 **Webhook notifications** - Get instant alerts when zips are ready
 - 🔒 **Secure** - All requests use HTTPS and bearer token authentication
 - ⚡ **Fast & scalable** - Handles large files and multiple concurrent jobs
 
@@ -28,8 +28,8 @@ ZipKit is a powerful API that fetches files from the URLs you provide, bundles t
 1. **Configure** your cloud storage bucket (S3 or R2) in the ZipKit dashboard
 2. **Create** an access token for API authentication
 3. **Send** a POST request with URLs of files to bundle
-4. **Receive** a webhook when the ZIP is ready in your bucket
-5. **Download** or share the ZIP from your cloud storage
+4. **Receive** a webhook when the zip is ready in your bucket
+5. **Download** or share the zip from your cloud storage
 
 ## Quick Start
 
@@ -40,7 +40,7 @@ Get up and running in minutes:
   icon="rocket"
   href="/quickstart"
 >
-  Follow our step-by-step guide to create your first ZIP in under 15 minutes
+  Follow our step-by-step guide to create your first zip in under 15 minutes
 </Card>
 
 ## Core Concepts
@@ -51,7 +51,7 @@ Get up and running in minutes:
   </Card>
 
   <Card title="Buckets" icon="bucket" href="/guides/buckets">
-    Configure S3 or R2 storage for your ZIPs
+    Configure S3 or R2 storage for your zips
   </Card>
 
   <Card title="Zips" icon="file-zipper" href="/guides/zips">
@@ -68,7 +68,11 @@ Get up and running in minutes:
 Complete documentation for all API endpoints:
 
 <CardGroup cols={2}>
-  <Card title="Create ZIP" icon="plus" href="/api-reference/create-zip">
-    `POST /api/v1/zips` - Create a new ZIP archive
+  <Card title="Create Zip" icon="plus" href="/api-reference/create-zip">
+    `POST /api/v1/zips` - Create a new zip archive
+  </Card>
+
+  <Card title="Get Zip" icon="magnifying-glass" href="/api-reference/get-zip">
+    `GET /api/v1/zips/:id` - Retrieve zip status
   </Card>
 </CardGroup>

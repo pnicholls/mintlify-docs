@@ -28,7 +28,7 @@
           },
           {
             "group": "API Reference",
-            "pages": ["api-reference/create-zip"]
+            "pages": ["api-reference/create-zip", "api-reference/get-zip"]
           }
         ]
       }
