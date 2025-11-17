@@ -102,20 +102,16 @@ curl -X POST https://zipkit.io/api/v1/zips \
   -d '{
     "urls": [
       {
-        "url": "https://my-bucket.s3.amazonaws.com/documents/report.pdf",
-        "filename": "report.pdf"
+        "url": "https://app.zipkit.io/onboarding/success.jpg",
+        "filename": "success.jpg"
       },
       {
-        "url": "https://my-bucket.s3.amazonaws.com/images/photo.jpg",
-        "filename": "photo.jpg"
-      },
-      {
-        "url": "https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx",
-        "filename": "data.xlsx"
+        "url": "https://app.zipkit.io/onboarding/welcome.txt",
+        "filename": "welcome.txt"
       }
     ],
-    "bucket_name": "my-destination-bucket",
-    "key": "reports/monthly-2025-11.zip",
+    "bucket_name": "my-bucket",
+    "key": "example.zip",
     "service": "s3",
     "metadata": {
       "user_id": "user_123",
@@ -135,20 +131,16 @@ headers = {
 data = {
     "urls": [
         {
-            "url": "https://my-bucket.s3.amazonaws.com/documents/report.pdf",
-            "filename": "report.pdf"
+            "url": "https://app.zipkit.io/onboarding/success.jpg",
+            "filename": "success.jpg"
         },
         {
-            "url": "https://my-bucket.s3.amazonaws.com/images/photo.jpg",
-            "filename": "photo.jpg"
-        },
-        {
-            "url": "https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx",
-            "filename": "data.xlsx"
+            "url": "https://app.zipkit.io/onboarding/welcome.txt",
+            "filename": "welcome.txt"
         }
     ],
-    "bucket_name": "my-destination-bucket",
-    "key": "reports/monthly-2025-11.zip",
+    "bucket_name": "my-bucket",
+    "key": "example.zip",
     "service": "s3",
     "metadata": {
         "user_id": "user_123",
@@ -172,20 +164,16 @@ const response = await fetch('https://zipkit.io/api/v1/zips', {
   body: JSON.stringify({
     urls: [
       {
-        url: 'https://my-bucket.s3.amazonaws.com/documents/report.pdf',
-        filename: 'report.pdf'
+        url: 'https://app.zipkit.io/onboarding/success.jpg',
+        filename: 'success.jpg'
       },
       {
-        url: 'https://my-bucket.s3.amazonaws.com/images/photo.jpg',
-        filename: 'photo.jpg'
-      },
-      {
-        url: 'https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx',
-        filename: 'data.xlsx'
+        url: 'https://app.zipkit.io/onboarding/welcome.txt',
+        filename: 'welcome.txt'
       }
     ],
-    bucket_name: 'my-destination-bucket',
-    key: 'reports/monthly-2025-11.zip',
+    bucket_name: 'my-bucket',
+    key: 'example.zip',
     service: 's3',
     metadata: {
       user_id: 'user_123',
@@ -214,20 +202,16 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
 $data = [
     'urls' => [
         [
-            'url' => 'https://my-bucket.s3.amazonaws.com/documents/report.pdf',
-            'filename' => 'report.pdf'
+            'url' => 'https://app.zipkit.io/onboarding/success.jpg',
+            'filename' => 'success.jpg'
         ],
         [
-            'url' => 'https://my-bucket.s3.amazonaws.com/images/photo.jpg',
-            'filename' => 'photo.jpg'
-        ],
-        [
-            'url' => 'https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx',
-            'filename' => 'data.xlsx'
+            'url' => 'https://app.zipkit.io/onboarding/welcome.txt',
+            'filename' => 'welcome.txt'
         ]
     ],
-    'bucket_name' => 'my-destination-bucket',
-    'key' => 'reports/monthly-2025-11.zip',
+    'bucket_name' => 'my-bucket',
+    'key' => 'example.zip',
     'service' => 's3',
     'metadata' => [
         'user_id' => 'user_123',
@@ -263,20 +247,16 @@ func main() {
     data := map[string]interface{}{
         "urls": []map[string]string{
             {
-                "url":      "https://my-bucket.s3.amazonaws.com/documents/report.pdf",
-                "filename": "report.pdf",
+                "url":      "https://app.zipkit.io/onboarding/success.jpg",
+                "filename": "success.jpg",
             },
             {
-                "url":      "https://my-bucket.s3.amazonaws.com/images/photo.jpg",
-                "filename": "photo.jpg",
-            },
-            {
-                "url":      "https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx",
-                "filename": "data.xlsx",
+                "url":      "https://app.zipkit.io/onboarding/welcome.txt",
+                "filename": "welcome.txt",
             },
         },
-        "bucket_name": "my-destination-bucket",
-        "key":         "reports/monthly-2025-11.zip",
+        "bucket_name": "my-bucket",
+        "key":         "example.zip",
         "service":     "s3",
         "metadata": map[string]string{
             "user_id":  "user_123",
@@ -319,14 +299,11 @@ public class CreateZip {
 
         JSONArray urls = new JSONArray()
             .put(new JSONObject()
-                .put("url", "https://my-bucket.s3.amazonaws.com/documents/report.pdf")
-                .put("filename", "report.pdf"))
+                .put("url", "https://app.zipkit.io/onboarding/success.jpg")
+                .put("filename", "success.jpg"))
             .put(new JSONObject()
-                .put("url", "https://my-bucket.s3.amazonaws.com/images/photo.jpg")
-                .put("filename", "photo.jpg"))
-            .put(new JSONObject()
-                .put("url", "https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx")
-                .put("filename", "data.xlsx"));
+                .put("url", "https://app.zipkit.io/onboarding/welcome.txt")
+                .put("filename", "welcome.txt"));
 
         JSONObject metadata = new JSONObject()
             .put("user_id", "user_123")
@@ -334,8 +311,8 @@ public class CreateZip {
 
         JSONObject data = new JSONObject()
             .put("urls", urls)
-            .put("bucket_name", "my-destination-bucket")
-            .put("key", "reports/monthly-2025-11.zip")
+            .put("bucket_name", "my-bucket")
+            .put("key", "example.zip")
             .put("service", "s3")
             .put("metadata", metadata);
 
@@ -375,20 +352,16 @@ request = Net::HTTP::Post.new(uri.path, {
 request.body = {
   urls: [
     {
-      url: 'https://my-bucket.s3.amazonaws.com/documents/report.pdf',
-      filename: 'report.pdf'
+      url: 'https://app.zipkit.io/onboarding/success.jpg',
+      filename: 'success.jpg'
     },
     {
-      url: 'https://my-bucket.s3.amazonaws.com/images/photo.jpg',
-      filename: 'photo.jpg'
-    },
-    {
-      url: 'https://my-bucket.s3.amazonaws.com/data/spreadsheet.xlsx',
-      filename: 'data.xlsx'
+      url: 'https://app.zipkit.io/onboarding/welcome.txt',
+      filename: 'welcome.txt'
     }
   ],
-  bucket_name: 'my-destination-bucket',
-  key: 'reports/monthly-2025-11.zip',
+  bucket_name: 'my-bucket',
+  key: 'example.zip',
   service: 's3',
   metadata: {
     user_id: 'user_123',

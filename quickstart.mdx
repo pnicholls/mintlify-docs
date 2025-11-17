@@ -77,20 +77,16 @@ ZipKit stores zip archives in your cloud storage. You'll need to configure eithe
       -d '{
         "urls": [
           {
-            "url": "https://my-source-bucket.s3.amazonaws.com/file1.pdf",
-            "filename": "document.pdf"
+            "url": "https://app.zipkit.io/onboarding/success.jpg",
+            "filename": "success.jpg"
           },
           {
-            "url": "https://my-source-bucket.s3.amazonaws.com/image.jpg",
-            "filename": "image.jpg"
-          },
-          {
-            "url": "https://my-source-bucket.s3.amazonaws.com/document.docx",
-            "filename": "report.docx"
+            "url": "https://app.zipkit.io/onboarding/welcome.txt",
+            "filename": "welcome.txt"
           }
         ],
-        "bucket_name": "my-destination-bucket",
-        "key": "my-archive.zip"
+        "bucket_name": "my-bucket",
+        "key": "example.zip"
       }'
     ```
 
@@ -121,4 +117,4 @@ ZipKit stores zip archives in your cloud storage. You'll need to configure eithe
 2. **Downloaded each file** from the URLs you provided
 3. **Created a zip archive** containing all the files
 4. **Uploaded the zip** to your configured cloud storage bucket
-5. The zip is now available in your bucket at the `key` you specified (e.g., `my-archive.zip`)
+5. The zip is now available in your bucket at the `key` you specified (e.g., `example.zip`)
