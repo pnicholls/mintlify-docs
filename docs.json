@@ -43,6 +43,14 @@
       ]
     }
   },
+  "api": {
+    "mdx": {
+      "server": "https://api.zipkit.io",
+      "auth": {
+        "method": "bearer"
+      }
+    }
+  },
   "navbar": {
     "primary": {
       "type": "button",
