@@ -41,8 +41,18 @@ curl -X POST https://api.zipkit.io/v1/zips \
   -H "Authorization: Bearer your-access-token" \
   -H "Content-Type: application/json" \
   -d '{
-    "urls": ["https://example.com/file.pdf"],
-    "bucket_name": "my-bucket"
+    "urls": [
+      {
+        "url": "https://app.zipkit.io/onboarding/success.jpg",
+        "filename": "success.jpg"
+      },
+      {
+        "url": "https://app.zipkit.io/onboarding/welcome.txt",
+        "filename": "welcome.txt"
+      }
+    ],
+    "bucket_name": "my-bucket",
+    "key": "example.zip"
   }'
 ```
 
