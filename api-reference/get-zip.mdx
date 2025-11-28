@@ -201,25 +201,52 @@ puts "Status: #{zip_data['data']['status']}"
 
 ## Error Responses
 
-### 401 Unauthorized
-
-```
-Unauthorized
-```
-
-Returns plain text with 401 status code when authentication fails.
-
-### 404 Not Found
+All errors follow a consistent JSON format:
 
 ```json
 {
-  "errors": {
-    "detail": "Not Found"
+  "error": {
+    "type": "error_type",
+    "code": "error_code",
+    "message": "Human-readable description",
+    "param": null
   }
 }
 ```
 
-Returned when the zip ID doesn't exist.
+### 401 Unauthorized
+
+Returned when authentication fails.
+
+#### Missing Authorization Header
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "authentication_required",
+    "message": "No API key provided. Include your API key in the Authorization header using Bearer auth.",
+    "param": null
+  }
+}
+```
+
+#### Invalid API Key
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "invalid_api_key",
+    "message": "Invalid API key provided.",
+    "param": null
+  }
+}
+```
+
+### 404 Not Found
+
+Returned when the zip ID doesn't exist or doesn't belong to your project.
 
 ## Notes
 

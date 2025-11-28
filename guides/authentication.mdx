@@ -117,23 +117,52 @@ To revoke a token:
 
 ## Authentication Errors
 
+All authentication errors return a consistent JSON format:
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "error_code",
+    "message": "Human-readable description",
+    "param": null
+  }
+}
+```
+
 ### 401 Unauthorized
 
-You'll receive a `401 Unauthorized` response if:
+#### Missing Authorization Header
 
-- No `Authorization` header is provided
-- The token is invalid or has been revoked
-- The token format is incorrect (not using `Bearer` scheme)
+Returned when no `Authorization` header is provided.
 
-**Example error response:**
-
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "authentication_required",
+    "message": "No API key provided. Include your API key in the Authorization header using Bearer auth.",
+    "param": null
+  }
+}
 ```
-Unauthorized
+
+#### Invalid API Key
+
+Returned when the token is invalid, revoked, or incorrectly formatted.
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "invalid_api_key",
+    "message": "Invalid API key provided.",
+    "param": null
+  }
+}
 ```
 
-Returns plain text with 401 status code.
-
-**Solution**: Check that you're including the correct `Authorization` header with a valid token.
+**Solution**: Check that you're including the correct `Authorization` header with a valid token using the `Bearer` scheme.
 
 ### 403 Forbidden
 
@@ -141,16 +170,6 @@ You'll receive a `403 Forbidden` response if:
 
 - You're trying to access a resource from a different project
 - The token doesn't have permission for the requested operation
-
-**Example error response:**
-
-```json
-{
-  "errors": {
-    "detail": "Forbidden"
-  }
-}
-```
 
 **Solution**: Verify you're using the correct token for the project, and that the resource ID belongs to that project.
 

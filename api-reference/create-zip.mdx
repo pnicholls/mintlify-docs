@@ -440,33 +440,48 @@ The Create Zip endpoint returns immediately - it doesn't wait for the zip to be 
 
 ## Error Responses
 
-### 400 Bad Request
-
-Returned when the request is invalid.
+All errors follow a consistent JSON format:
 
 ```json
 {
-  "errors": {
-    "urls": ["can't be blank"]
+  "error": {
+    "type": "error_type",
+    "code": "error_code",
+    "message": "Human-readable description",
+    "param": "field_name or null"
   }
 }
 ```
-
-**Common causes:**
-- Missing required fields (`bucket_name`, `key`, or `urls`)
-- `urls` is not an array
-- `urls` array is empty
-- Invalid URL format
 
 ### 401 Unauthorized
 
 Returned when authentication fails.
 
-```
-Unauthorized
+#### Missing Authorization Header
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "authentication_required",
+    "message": "No API key provided. Include your API key in the Authorization header using Bearer auth.",
+    "param": null
+  }
+}
 ```
 
-Returns plain text with 401 status code.
+#### Invalid API Key
+
+```json
+{
+  "error": {
+    "type": "authentication_error",
+    "code": "invalid_api_key",
+    "message": "Invalid API key provided.",
+    "param": null
+  }
+}
+```
 
 **Solution**: Check that you're including a valid `Authorization` header.
 
@@ -474,32 +489,45 @@ Returns plain text with 401 status code.
 
 Returned when the specified bucket doesn't exist or doesn't belong to your project.
 
-```json
-{
-  "errors": {
-    "detail": "Not Found"
-  }
-}
-```
-
 **Solution**: Verify the `bucket_name` matches a bucket you've configured in your project.
 
 ### 422 Unprocessable Entity
 
-Returned when the request is well-formed but contains invalid data.
+Returned when a required parameter is missing or invalid.
+
+#### Missing Required Parameter
 
 ```json
 {
-  "errors": {
-    "field_name": ["error message"]
+  "error": {
+    "type": "invalid_request_error",
+    "code": "parameter_missing",
+    "message": "Missing required parameter: bucket_name",
+    "param": "bucket_name"
   }
 }
 ```
 
 **Common causes:**
-- Invalid data format
-- URLs that aren't accessible
-- Invalid bucket configuration
+- Missing `bucket_name`, `key`, or `urls` parameter
+
+#### Invalid Parameter
+
+```json
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "parameter_invalid",
+    "message": "is invalid",
+    "param": "urls"
+  }
+}
+```
+
+**Common causes:**
+- `urls` is not an array or is empty
+- Invalid URL format
+- Invalid data types
 
 ## Best Practices
 
