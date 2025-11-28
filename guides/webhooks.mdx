@@ -50,97 +50,146 @@ Webhooks are configured through the ZipKit dashboard for your project.
 
 ## Webhook Payload
 
-When a zip completes (successfully or with failure), ZipKit sends a POST request to your webhook URL with the following JSON payload:
+When a zip completes (successfully or with failure), ZipKit sends a POST request to your webhook URL with a Stripe-style event payload:
 
-### Successful Zip
+### Event Structure
 
 ```json
 {
-  "type": "COMPLETED",
-  "zip_id": "clx7g2m4p0000xyz123abc",
-  "status": "succeeded",
-  "bucket": {
-    "service": "s3",
-    "name": "my-destination-bucket"
-  },
-  "key": "reports/monthly-2025-11.zip",
-  "checksum": "d8e8fca2dc0f896fd7cb4cb0031ba249",
-  "byte_size": 0,
-  "content_type": "application/zip, application/octet-stream",
-  "metadata": {
-    "user_id": "user_123",
-    "order_id": "order_456"
+  "id": "evt_a1b2c3d4e5f6g7h8i9j0k1l2",
+  "object": "event",
+  "type": "zip.completed",
+  "created": 1701234567,
+  "data": {
+    "object": {
+      "id": "zip_abc123",
+      "object": "zip",
+      "status": "succeeded",
+      "key": "reports/monthly-2025-11.zip",
+      "bucket": {
+        "service": "s3",
+        "name": "my-destination-bucket"
+      },
+      "metadata": {
+        "user_id": "user_123",
+        "order_id": "order_456"
+      },
+      "checksum": "d8e8fca2dc0f896fd7cb4cb0031ba249",
+      "size_bytes": 12345,
+      "content_type": "application/zip"
+    }
   }
 }
 ```
 
 ### Failed Zip
 
+When a zip fails, the payload includes an error object:
+
 ```json
 {
-  "type": "COMPLETED",
-  "zip_id": "clx7g2m4p0000xyz123abc",
-  "status": "failed",
-  "bucket": {
-    "service": "s3",
-    "name": "my-destination-bucket"
-  },
-  "key": "reports/monthly-2025-11.zip",
-  "metadata": {
-    "user_id": "user_123",
-    "order_id": "order_456"
+  "id": "evt_def456ghi789jkl012mno345",
+  "object": "event",
+  "type": "zip.completed",
+  "created": 1701234567,
+  "data": {
+    "object": {
+      "id": "zip_def456",
+      "object": "zip",
+      "status": "failed",
+      "key": "reports/monthly-2025-11.zip",
+      "bucket": {
+        "service": "s3",
+        "name": "my-destination-bucket"
+      },
+      "metadata": {
+        "user_id": "user_123",
+        "order_id": "order_456"
+      }
+    },
+    "error": {
+      "type": "bucket_error",
+      "code": "upload_failed",
+      "message": "Failed to upload zip to bucket"
+    }
   }
 }
 ```
 
-## Payload Fields
+## Event Fields
+
+<ResponseField name="id" type="string">
+  Unique event identifier with `evt_` prefix.
+</ResponseField>
+
+<ResponseField name="object" type="string">
+  Always `"event"`.
+</ResponseField>
 
 <ResponseField name="type" type="string">
-  The event type. Currently always `"COMPLETED"`.
+  The event type. Currently always `"zip.completed"`.
 </ResponseField>
 
-<ResponseField name="zip_id" type="string">
-  The unique identifier (UUID) of the zip job. This matches the `id` returned when you created the zip.
+<ResponseField name="created" type="integer">
+  Unix timestamp when the event was created.
 </ResponseField>
 
-<ResponseField name="status" type="string">
-  The final status of the zip job. This is always a string value.
+<ResponseField name="data.object" type="object">
+  The zip object that triggered the event.
+</ResponseField>
+
+<ResponseField name="data.error" type="object">
+  Error details when the zip fails. Only present on failed zips. Contains `type`, `code`, and `message` fields.
+</ResponseField>
+
+## Zip Object Fields
+
+<ResponseField name="data.object.id" type="string">
+  Unique zip identifier with `zip_` prefix.
+</ResponseField>
+
+<ResponseField name="data.object.object" type="string">
+  Always `"zip"`.
+</ResponseField>
+
+<ResponseField name="data.object.status" type="string">
+  The final status of the zip job.
 
   **Possible values:**
   - `"succeeded"` - zip was created and uploaded successfully
   - `"failed"` - zip creation or upload failed
 </ResponseField>
 
-<ResponseField name="bucket" type="object">
-  Information about the destination bucket.
-</ResponseField>
-
-<ResponseField name="bucket.service" type="string">
-  The cloud storage service (`"s3"` or `"r2"`).
-</ResponseField>
-
-<ResponseField name="bucket.name" type="string">
-  The name of the bucket where the zip was stored (or attempted to be stored).
-</ResponseField>
-
-<ResponseField name="key" type="string">
+<ResponseField name="data.object.key" type="string">
   The storage key (filename/path) of the zip archive in the bucket.
 </ResponseField>
 
-<ResponseField name="checksum" type="string">
+<ResponseField name="data.object.bucket" type="object">
+  Information about the destination bucket.
+</ResponseField>
+
+<ResponseField name="data.object.bucket.service" type="string">
+  The cloud storage service (`"s3"` or `"r2"`).
+</ResponseField>
+
+<ResponseField name="data.object.bucket.name" type="string">
+  The name of the bucket where the zip was stored (or attempted to be stored).
+</ResponseField>
+
+<ResponseField name="data.object.metadata" type="object">
+  The custom metadata object that was provided when the zip was created. Contains any custom data you attached to track user IDs, order IDs, or other contextual information. Returns an empty object `{}` if no metadata was provided.
+</ResponseField>
+
+<ResponseField name="data.object.checksum" type="string">
   The ETag/checksum of the uploaded zip file. Only present for successful uploads.
 </ResponseField>
 
-<ResponseField name="byte_size" type="number">
-  The size of the zip file in bytes.
+<ResponseField name="data.object.size_bytes" type="integer">
+  The size of the zip file in bytes. Only present for successful uploads.
 </ResponseField>
 
-<ResponseField name="content_type" type="string">
-  The MIME type of the zip file. Typically `"application/zip, application/octet-stream"`.
-</ResponseField>
-
-<ResponseField name="metadata" type="object">
-  The custom metadata object that was provided when the zip was created. Contains any custom data you attached to track user IDs, order IDs, or other contextual information. Returns an empty object `{}` if no metadata was provided.
+<ResponseField name="data.object.content_type" type="string">
+  The MIME type of the zip file. Typically `"application/zip"`. Only present for successful uploads.
 </ResponseField>
 
 ## Implementing a Webhook Endpoint
@@ -180,16 +229,17 @@ Your webhook endpoint should:
   </Accordion>
 
   <Accordion title="Handle retries gracefully" icon="arrows-rotate">
-    Make your webhook endpoint idempotent. ZipKit may retry sending webhooks if your endpoint fails to respond. Use the `zip_id` to deduplicate events.
+    Make your webhook endpoint idempotent. ZipKit may retry sending webhooks if your endpoint fails to respond. Use the event `id` or `data.object.id` to deduplicate events.
 
     ```python
-    # Check if we've already processed this zip
-    if already_processed(payload['zip_id']):
+    # Check if we've already processed this event
+    event_id = payload['id']
+    if already_processed(event_id):
         return jsonify({'received': True}), 200
 
     # Process the webhook
     process_webhook(payload)
-    mark_as_processed(payload['zip_id'])
+    mark_as_processed(event_id)
     ```
   </Accordion>
 
@@ -199,7 +249,8 @@ Your webhook endpoint should:
     ```python
     import logging
 
-    logger.info(f"Received webhook for zip {zip_id}: {status}")
+    zip_data = payload['data']['object']
+    logger.info(f"Received {payload['type']} for zip {zip_data['id']}: {zip_data['status']}")
     ```
   </Accordion>
 
@@ -296,7 +347,7 @@ This can happen if:
 - Your endpoint returned an error status code
 - Network issues caused ZipKit to retry
 
-**Solution:** Make your webhook handler idempotent using the `zip_id` to deduplicate.
+**Solution:** Make your webhook handler idempotent using the event `id` to deduplicate.
 
 ### Securing webhook endpoints
 
